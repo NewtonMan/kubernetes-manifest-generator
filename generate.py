@@ -4,25 +4,30 @@ from os.path import exists
 import requests
 
 APPNAME = sys.argv[1]
-CONTAINER_IMAGE = sys.argv[2]
-NAMESPACE = sys.argv[3]
+DOMAIN = sys.argv[2]
+CONTAINER_IMAGE = sys.argv[3]
+NAMESPACE = sys.argv[4]
+
+# IF NAMESPACE IS NOT MAIN, THIS IS NOT A PRODUCTION APP, THEN ADD NAMESPACE SUFFIX
 if NAMESPACE != "main":
     APPNAME = "-".join([APPNAME, NAMESPACE])
 
-APPURL="{}.obvious.com.br".format(APPNAME)
+APPURL="{}.{}".format(APPNAME, DOMAIN)
 
-CUSTOM_MANIFEST="./manifests/{}.yml".format(APPNAME)
-if exists(CUSTOM_MANIFEST):
-    MANIFEST=CUSTOM_MANIFEST
-if NAMESPACE != "main" and NAMESPACE != "hml":
-    MANIFEST='./k8s/deployments/dev.yml'
+NAMESPACE_MANIFEST="./manifests/{}.yml".format(NAMESPACE)
+APP_MANIFEST="./manifests/{}.yml".format(APPNAME)
+if exists(APP_MANIFEST):
+    MANIFEST=APP_MANIFEST
+elif exists(NAMESPACE_MANIFEST):
+    MANIFEST=NAMESPACE_MANIFEST
 else:
-    MANIFEST="./k8s/deployments/{}.yml".format(NAMESPACE)
+    print("# ERROR: No manifest found for {} or {}".format(APP_MANIFEST, NAMESPACE_MANIFEST))
+    exit(1)
 
 try:
     REGISTRY = sys.argv[4]
 except:
-    REGISTRY = "obvious"
+    REGISTRY = "obvious" # HEY! CHANGE THIS!
 with open(MANIFEST, 'r') as file:
     DEPLOYMENT = file.read()
 
@@ -34,11 +39,11 @@ DEPLOYMENT = DEPLOYMENT.replace('__REGISTRY', REGISTRY)
 
 print(DEPLOYMENT)
 
-# INTEGRANDO PORTAL devops-status.obvious.com.br
-DEVOPS_WORKER_URL = "devops-status.obvious.com.br"
+# PORTAL STATUS
+DEVOPS_WORKER_URL = "status.{}".format(DOMAIN)
 DEVOPS_WORKER_TOKEN = "teste"
 try:
     response = requests.post("https://{}/newEvent.php?token={}&appslug={}".format(DEVOPS_WORKER_URL, DEVOPS_WORKER_TOKEN, APPNAME), data = {'message':"BUILD do Projeto na URL: https://{}".format(APPURL)})
 except:
-    print("# Erro ao enviar notificação para {}".format(DEVOPS_WORKER_URL))
+    print("# Fail to notify: {}".format(DEVOPS_WORKER_URL))
     pass
