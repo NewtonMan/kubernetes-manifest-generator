@@ -9,7 +9,7 @@ NAMESPACE = sys.argv[3]
 if NAMESPACE != "main":
     APPNAME = "-".join([APPNAME, NAMESPACE])
 
-APPURL="{}.obvious.com.br".format(APPNAME)
+APPURL="{}.obvious.net.br".format(APPNAME)
 
 CUSTOM_MANIFEST="./manifests/{}.yml".format(APPNAME)
 if exists(CUSTOM_MANIFEST):
@@ -35,7 +35,7 @@ DEPLOYMENT = DEPLOYMENT.replace('__REGISTRY', REGISTRY)
 print(DEPLOYMENT)
 
 # INTEGRANDO PORTAL devops-status.obvious.com.br
-DEVOPS_WORKER_URL = "devops-status.obvious.com.br"
+DEVOPS_WORKER_URL = "devops-status.obvious.net.br"
 DEVOPS_WORKER_TOKEN = "teste"
 try:
     response = requests.post("https://{}/newEvent.php?token={}&appslug={}".format(DEVOPS_WORKER_URL, DEVOPS_WORKER_TOKEN, APPNAME), data = {'message':"BUILD do Projeto na URL: https://{}".format(APPURL)})
