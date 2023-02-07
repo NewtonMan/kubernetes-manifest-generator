@@ -22,7 +22,7 @@ spec:
     spec:
       containers:
       - name: __APPNAME
-        image: obvious.azurecr.io/__CONTAINER_IMAGE
+        image: obvioustf.azurecr.io/__CONTAINER_IMAGE
         env:
             - name: TZ
               value: America/Sao_Paulo        
